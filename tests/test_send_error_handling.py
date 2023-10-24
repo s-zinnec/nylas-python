@@ -99,3 +99,11 @@ def test_doesnt_return_server_error_if_not_defined(
     with pytest.raises(RequestException) as exc:
         draft.send()
     assert "Service Unavailable" in str(exc.value)
+    @pytest.mark.usefixtures("mock_account", "mock_save_draft")
+    
+def test_handle_message_rejected(mocked_responses, api_client, api_url):
+    draft = api_client.drafts.create()
+    error_message = "Sending to all recipients failed"
+    mock_sending_error(402, error_message, mocked_responses, api_url=api_url)
+    with pytest.raises(MessageRejectedError):
+        draft.send()
